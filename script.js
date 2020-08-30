@@ -1,63 +1,94 @@
-var question001 = [
-  "There are 9 continents in the world?",
-  "There are no island on Earth?",
-  "Ostriches have two toes on each foot?",
-];
-var options001 = [
-  "<button class=buttons001 onclick=q1i()>True</button><br /><br /><button class=buttons001 onclick=q1c()>False</button",
-];
-var options002 = [
-  "<button class=buttons001 onclick=q1c()>False</button><br /><br /><button class=buttons001 onclick=q1i()>True</button",
-];
-var options003 = [
-  "<button class=buttons001 onclick=q1c()>True</button><br /><br /><button class=buttons001 onclick=q1i()>False</button",
-];
+const startButton = document.getElementById("start-btn");
+const nextButton = document.getElementById("next-btn");
+const questionContainerElement = document.getElementById("question-container");
+const questionElement = document.getElementById("question");
+const answerButtonsElement = document.getElementById("answer-buttons");
 
-var a = 0;
-a++;
-var b = 0;
-b++;
+let shuffledQuestions, currentQuestionIndex;
 
-function begin001() {
-  disappear001.innerHTML = "";
-  message001.innerHTML = question001[0];
-  message002.innerHTML = options001;
-  number001.innerHTML = a++;
+startButton.addEventListener("click", startGame);
+nextButton.addEventListener("click", () => {
+  currentQuestionIndex++;
+  setNextQuestion();
+});
+
+function startGame() {
+  startButton.classList.add("hide");
+  shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+  currentQuestionIndex = 0;
+  questionContainerElement.classList.remove("hide");
+  setNextQuestion();
 }
-function q1c() {
-  message003.innerHTML = "Correct";
-  message002.innerHTML = "";
-  score001.innerHTML = b++;
-  message004.innerHTML =
-    "<button class=buttons002 onclick=next001()>Next<button>";
+
+function setNextQuestion() {
+  resetState();
+  showQuestion(shuffledQuestions[currentQuestionIndex]);
 }
-function q1i() {
-  message003.innerHTML = "Incorrect";
-  message002.innerHTML = "";
-  message004.innerHTML =
-    "<button class=buttons002 onclick=next001()>Next<button>";
+
+function showQuestion(question) {
+  questionElement.innerText = question.question;
+  question.answers.forEach((answer) => {
+    const button = document.createElement("button");
+    button.innerText = answer.text;
+    button.classList.add("btn");
+    if (answer.correct) {
+      button.dataset.correct = answer.correct;
+    }
+    button.addEventListener("click", selectAnswer);
+    answerButtonsElement.appendChild(button);
+  });
 }
-function next001() {
-  if (a == "2") {
-    message001.innerHTML = question001[1];
-    message002.innerHTML = options002;
-    message003.innerHTML = "";
-    number001.innerHTML = a++;
-    message004.innerHTML = "";
-  } else if (a == "3") {
-    message001.innerHTML = question001[2];
-    message002.innerHTML = options003;
-    message003.innerHTML = "";
-    number001.innerHTML = a++;
-    message004.innerHTML = "";
+
+function resetState() {
+  clearStatusClass(document.body);
+  nextButton.classList.add("hide");
+  while (answerButtonsElement.firstChild)
+    answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+}
+
+function selectAnswer(e) {
+  const selectedButton = e.target;
+  const correct = selectedButton.dataset.correct;
+  setStatusClass(document.body, correct);
+  Array.from(answerButtonsElement.children).forEach((button) => {
+    setStatusClass(button, button.dataset.correct);
+  });
+  if (shuffledQuestions.length > currentQuestionIndex + 1) {
+    nextButton.classList.remove("hide");
   } else {
-    message001.innerHTML = "End of Quiz";
-    message002.innerHTML = "";
-    message003.innerHTML = "";
-    message004.innerHTML =
-      "<button class=buttons002 onclick=repeat001()>Repeat<button>";
+    startButton.innerText = "restart";
+    startButton.classList.remove("hide");
   }
 }
-function repeat001() {
-  location.reload();
+
+function setStatusClass(element, correct) {
+  clearStatusClass(element);
+  if (correct) {
+    element.classList.add("correct");
+  } else {
+    element.classList.add("wrong");
+  }
 }
+
+function clearStatusClass(element) {
+  element.classList.remove("correct");
+  element.classList.remove("wrong");
+}
+const questions = [
+  {
+    question: "What is 2 + 2?",
+    answers: [
+      { text: "4", correct: true },
+      { text: "22", correct: false },
+    ],
+  },
+  {
+    question: "Toyota makes the toughest inline 6 cylinder engine",
+    answers: [
+      { text: "No! Nissan does!!", correct: false },
+      { text: "No! Ford does!!", correct: false },
+      { text: "I don't think so..", correct: false },
+      { text: "Yes they do!!", correct: true },
+    ],
+  },
+];
